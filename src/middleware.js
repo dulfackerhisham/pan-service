@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-// import formidable from "formidable";
 
 const schema = z.object({
   applicationType: z.string().min(1, "Application type is required"),
@@ -35,7 +34,6 @@ const schema = z.object({
 export const middleware = async (req) => {
   const formData = await req.formData();
 
-  // Convert FormData to a plain object
   const body = Object.fromEntries(formData.entries());
   
   const result = schema.safeParse(body);
