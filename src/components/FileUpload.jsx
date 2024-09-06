@@ -46,6 +46,7 @@ const FileUpload = ({ title, onFileChange}) => {
       >
         <input
           type="file"
+          name="file"
           className="hidden" // Keep the file input hidden
           onChange={handleFileChange}
           ref={fileInputRef} // Ref to control file input
