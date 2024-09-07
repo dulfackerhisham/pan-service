@@ -1,5 +1,7 @@
 const { NextResponse } = require("next/server");
 import cloudinary from "cloudinary";
+import userModel from "@models/userModel";
+import { connectDB } from "@config/databse";
 
 cloudinary.v2.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -17,8 +19,6 @@ export const POST = async (req) => {
   const formData = await req.formData();
   const frontImage = formData.get("front");
   const backImage = formData.get("back");
-  console.log("front image - ", frontImage);
-  console.log("back image - ", backImage);
 
   const body = Object.fromEntries(formData.entries());
 
@@ -30,20 +30,19 @@ export const POST = async (req) => {
   }
 
   const uploadToCloudinary = async (file) => {
-    const buffer = Buffer.from(await file.arrayBuffer()); 
+    const buffer = Buffer.from(await file.arrayBuffer());
 
     // Upload to Cloudinary
     return new Promise((resolve, reject) => {
-      cloudinary.v2.uploader.upload_stream(
-        { resource_type: "auto" }, 
-        (error, result) => {
+      cloudinary.v2.uploader
+        .upload_stream({ resource_type: "auto" }, (error, result) => {
           if (error) {
             reject(error);
           } else {
             resolve(result.secure_url);
           }
-        }
-      ).end(buffer); 
+        })
+        .end(buffer);
     });
   };
 
@@ -51,12 +50,38 @@ export const POST = async (req) => {
   const frontImageUrl = await uploadToCloudinary(frontImage);
   const backImageUrl = await uploadToCloudinary(backImage);
 
-  console.log(frontImageUrl);
-  console.log(backImageUrl);
-  
-  
+  const {
+    applicationType,
+    title,
+    fullName,
+    mobileNumber,
+    email,
+    dateOfBirth,
+    aadharNumber,
+  } = body;
 
-  console.log("body in api route - ",body);
+  await connectDB();
 
-  return NextResponse.json({ message: "success", frontImageUrl:frontImageUrl, backImageUrl:backImageUrl });
+  const userData = {
+    applicationType,
+    title,
+    fullName,
+    mobileNumber,
+    email,
+    dateOfBirth,
+    aadharNumber,
+    images: [
+      {
+        frontImage: frontImageUrl,
+        backImage: backImageUrl,
+      },
+    ],
+  };
+
+
+  await userModel.insertMany([userData]);
+
+  return NextResponse.json({
+    message: "success",
+  });
 };

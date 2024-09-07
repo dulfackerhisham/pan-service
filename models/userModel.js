@@ -6,6 +6,11 @@ const userSchema = new mongoose.Schema({
     required: true,
   },
 
+  title: {
+    type: String,
+    required: true,
+  },
+
   fullName: {
     type: String,
     required: true,
@@ -16,7 +21,7 @@ const userSchema = new mongoose.Schema({
     required: true,
   },
 
-  phoneNumber: {
+  mobileNumber: {
     type: String,
     required: true,
   },
@@ -50,6 +55,6 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-const userModel = new mongoose.model('user',userSchema)
+const userModel = mongoose.models.user || new mongoose.model("user", userSchema);
 
-export default userModel
+export default userModel;
